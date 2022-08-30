@@ -10,16 +10,16 @@ class TwitterHook(HttpHook):
     def __init__(
         self,
         query: str,
-        conn_id: str = 'twitter_default',
+        conn_id: str = '',
         start_time: str = '',
         end_time: str = ''
     ):
-        super().__init__(http_conn_id=conn_id)
-
         self.query = query
-        self.conn_id = conn_id
+        self.conn_id = conn_id or 'twitter_default'
         self.start_time = start_time
         self.end_time = end_time
+
+        super().__init__(http_conn_id=self.conn_id)
 
 
     def _format_date(self, date: datetime) -> str:
@@ -50,6 +50,8 @@ class TwitterHook(HttpHook):
 
     def paginate(self, url, session):
         next_token = None
+        pages = 1
+
         while True:
             full_url = f'{url}&next_token={next_token}' if next_token else url
             data = self.connect_to_endpoint(full_url, session)
@@ -58,8 +60,10 @@ class TwitterHook(HttpHook):
             if 'next_token' in data.get('meta', {}):
                 next_token = data['meta'].get('next_token', None)
 
-            if not next_token:
+            if not next_token or pages >= 20:
                 break
+            
+            pages += 1
 
 
     def run(self):
