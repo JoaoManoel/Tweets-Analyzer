@@ -12,8 +12,7 @@ with DAG(
         task_id='twitter_palmeiras',
         query='AvantiPalestra',
         file_path=join(
-            '~',
-            'data'
+            'data',
             'tweets',
             'extract_date={{ ds }}',
             'AvantiPalestra_{{ ds_nodash }}.jsonl'
